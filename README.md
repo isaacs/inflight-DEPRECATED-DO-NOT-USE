@@ -17,6 +17,9 @@ function req(key, callback) {
   // with the same key
   callback = inflight(key, callback)
 
+  // If we got a falsey value back, then there's already a req going
+  if (!callback) return
+
   // this is where you'd fetch the url or whatever
   // callback is also once()-ified, so it can safely be assigned
   // to multiple events etc.  First call wins.
