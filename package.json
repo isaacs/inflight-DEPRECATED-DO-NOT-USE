@@ -1,6 +1,6 @@
 {
   "name": "inflight",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Add callbacks to requests in flight to avoid async duplication",
   "main": "inflight.js",
   "dependencies": {
