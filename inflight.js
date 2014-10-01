@@ -15,11 +15,19 @@ function inflight (key, cb) {
 }
 
 function makeres(key) {
-  return once(function(error,  data) {
+  return once(function RES (error, data) {
     var cbs = reqs[key]
-    delete reqs[key]
-    cbs.forEach(function(cb) {
-      cb(error, data)
-    })
+    var len = cbs.length
+    for (var i = 0; i < len; i++) {
+      cbs[i](error, data)
+    }
+    if (cbs.length > len) {
+      // added more in the interim.
+      // de-zalgo, just in case, but don't call again.
+      cbs.splice(0, len)
+      process.nextTick(RES.bind(this, error, data))
+    } else {
+      delete reqs[key]
+    }
   })
 }
