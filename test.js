@@ -95,3 +95,57 @@ test('parameters', function (t) {
     a(1, 2, 3)
   })
 })
+
+test('throw (a)', function (t) {
+  var calleda = false
+  var a = inf('throw', function (k) {
+    t.notOk(calleda)
+    calleda = true
+    throw new Error('throw from a')
+  })
+  t.ok(a, 'first returned cb function')
+
+  var calledb = false
+  var b = inf('throw', function (k) {
+    t.notOk(calledb)
+    calledb = true
+  })
+  t.notOk(b, 'second should get falsey inflight response')
+
+  setTimeout(function () {
+    try {
+      a()
+    } catch(e) {
+      t.ok(calleda)
+      t.ok(calledb)
+      t.end()
+    }
+  })
+})
+
+test('throw (b)', function (t) {
+  var calleda = false
+  var a = inf('throw', function (k) {
+    t.notOk(calleda)
+    calleda = true
+  })
+  t.ok(a, 'first returned cb function')
+
+  var calledb = false
+  var b = inf('throw', function (k) {
+    t.notOk(calledb)
+    calledb = true
+    throw new Error('throw from b')
+  })
+  t.notOk(b, 'second should get falsey inflight response')
+
+  setTimeout(function () {
+    try {
+      a()
+    } catch(e) {
+      t.ok(calleda)
+      t.ok(calledb)
+      t.end()
+    }
+  })
+})

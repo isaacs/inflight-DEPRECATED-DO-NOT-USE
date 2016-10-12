@@ -19,8 +19,13 @@ function makeres (key) {
     var cbs = reqs[key]
     var len = cbs.length
     var args = slice(arguments)
+    var err = null
     for (var i = 0; i < len; i++) {
-      cbs[i].apply(null, args)
+      try {
+        cbs[i].apply(null, args)
+      } catch(e) {
+        err = e
+      }
     }
     if (cbs.length > len) {
       // added more in the interim.
@@ -31,6 +36,9 @@ function makeres (key) {
       })
     } else {
       delete reqs[key]
+    }
+    if (err) {
+      throw err
     }
   })
 }
