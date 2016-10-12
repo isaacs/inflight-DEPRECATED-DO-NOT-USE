@@ -98,7 +98,7 @@ test('parameters', function (t) {
 
 test('throw (a)', function (t) {
   var calleda = false
-  var a = inf('throw', function (k) {
+  var a = inf('throw', function () {
     t.notOk(calleda)
     calleda = true
     throw new Error('throw from a')
@@ -106,7 +106,7 @@ test('throw (a)', function (t) {
   t.ok(a, 'first returned cb function')
 
   var calledb = false
-  var b = inf('throw', function (k) {
+  var b = inf('throw', function () {
     t.notOk(calledb)
     calledb = true
   })
@@ -117,7 +117,10 @@ test('throw (a)', function (t) {
       a()
     } catch(e) {
       t.ok(calleda)
-      t.ok(calledb)
+      t.notOk(calledb)
+      var c = inf('throw', function () {})
+      t.ok(c, 'third returned cb function because it cleaned up')
+      c()
       t.end()
     }
   })
@@ -125,14 +128,14 @@ test('throw (a)', function (t) {
 
 test('throw (b)', function (t) {
   var calleda = false
-  var a = inf('throw', function (k) {
+  var a = inf('throw', function () {
     t.notOk(calleda)
     calleda = true
   })
   t.ok(a, 'first returned cb function')
 
   var calledb = false
-  var b = inf('throw', function (k) {
+  var b = inf('throw', function () {
     t.notOk(calledb)
     calledb = true
     throw new Error('throw from b')
@@ -145,7 +148,50 @@ test('throw (b)', function (t) {
     } catch(e) {
       t.ok(calleda)
       t.ok(calledb)
+      var c = inf('throw', function () {})
+      t.ok(c, 'third returned cb function because it cleaned up')
+      c()
       t.end()
+    }
+  })
+})
+
+test('throw (zalgo)', function (t) {
+  var calleda = false
+  var calledZalgo = false
+  var a = inf('throw', function () {
+    t.notOk(calleda)
+    calleda = true
+
+    var zalgo = inf('throw', function () {
+      t.notOk(calledZalgo)
+      calledZalgo = true
+    })
+    t.notOk(zalgo, 'zalgo should get falsey inflight response')
+    throw new Error('throw from a')
+  })
+  t.ok(a, 'first returned cb function')
+
+  var calledb = false
+  var b = inf('throw', function () {
+    t.notOk(calledb)
+    calledb = true
+  })
+  t.notOk(b, 'second should get falsey inflight response')
+
+  setTimeout(function () {
+    try {
+      a()
+    } catch(e) {
+      process.nextTick(function () {
+        t.ok(calleda)
+        t.notOk(calledb)
+        t.ok(calledZalgo)
+        var c = inf('throw', function () {})
+        t.ok(c, 'third returned cb function because it cleaned up')
+        c()
+        t.end()
+      })
     }
   })
 })

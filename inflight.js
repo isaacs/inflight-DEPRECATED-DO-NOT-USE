@@ -19,26 +19,21 @@ function makeres (key) {
     var cbs = reqs[key]
     var len = cbs.length
     var args = slice(arguments)
-    var err = null
-    for (var i = 0; i < len; i++) {
-      try {
+    try {
+      for (var i = 0; i < len; i++) {
         cbs[i].apply(null, args)
-      } catch(e) {
-        err = e
       }
-    }
-    if (cbs.length > len) {
-      // added more in the interim.
-      // de-zalgo, just in case, but don't call again.
-      cbs.splice(0, len)
-      process.nextTick(function () {
-        RES.apply(null, args)
-      })
-    } else {
-      delete reqs[key]
-    }
-    if (err) {
-      throw err
+    } finally {
+      if (cbs.length > len) {
+        // added more in the interim.
+        // de-zalgo, just in case, but don't call again.
+        cbs.splice(0, len)
+        process.nextTick(function () {
+          RES.apply(null, args)
+        })
+      } else {
+        delete reqs[key]
+      }
     }
   })
 }
