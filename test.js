@@ -113,16 +113,17 @@ test('throw (a)', function (t) {
   t.notOk(b, 'second should get falsey inflight response')
 
   setTimeout(function () {
-    try {
-      a()
-    } catch(e) {
-      t.ok(calleda)
-      t.notOk(calledb)
-      var c = inf('throw', function () {})
-      t.ok(c, 'third returned cb function because it cleaned up')
-      c()
-      t.end()
-    }
+    t.throws(a, { message: 'throw from a' })
+    t.ok(calleda)
+    t.notOk(calledb)
+    var calledc = false
+    var c = inf('throw', function () {
+      calledc = true
+    })
+    t.ok(c, 'third returned cb function because it cleaned up')
+    c()
+    t.ok(calledc)
+    t.end()
   })
 })
 
@@ -143,16 +144,17 @@ test('throw (b)', function (t) {
   t.notOk(b, 'second should get falsey inflight response')
 
   setTimeout(function () {
-    try {
-      a()
-    } catch(e) {
-      t.ok(calleda)
-      t.ok(calledb)
-      var c = inf('throw', function () {})
-      t.ok(c, 'third returned cb function because it cleaned up')
-      c()
-      t.end()
-    }
+    t.throws(a, { message: 'throw from b' })
+    t.ok(calleda)
+    t.ok(calledb)
+    var calledc = false
+    var c = inf('throw', function () {
+      calledc = true
+    })
+    t.ok(c, 'third returned cb function because it cleaned up')
+    c()
+    t.ok(calledc)
+    t.end()
   })
 })
 
@@ -180,18 +182,20 @@ test('throw (zalgo)', function (t) {
   t.notOk(b, 'second should get falsey inflight response')
 
   setTimeout(function () {
-    try {
-      a()
-    } catch(e) {
-      process.nextTick(function () {
-        t.ok(calleda)
-        t.notOk(calledb)
-        t.ok(calledZalgo)
-        var c = inf('throw', function () {})
-        t.ok(c, 'third returned cb function because it cleaned up')
-        c()
-        t.end()
+    t.throws(a, { message: 'throw from a' })
+    t.ok(calleda)
+    t.notOk(calledb)
+    t.notOk(calledZalgo)
+    process.nextTick(function () {
+      t.ok(calledZalgo)
+      var calledc = false
+      var c = inf('throw', function () {
+        calledc = true
       })
-    }
+      t.ok(c, 'third returned cb function because it cleaned up')
+      c()
+      t.ok(calledc)
+      t.end()
+    })
   })
 })
