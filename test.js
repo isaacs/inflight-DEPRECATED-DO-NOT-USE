@@ -1,13 +1,14 @@
 var test = require('tap').test
 var inf = require('./inflight.js')
 
-
 function req (key, cb) {
   cb = inf(key, cb)
-  if (cb) setTimeout(function () {
-    cb(key)
-    cb(key)
-  })
+  if (cb) {
+    setTimeout(function () {
+      cb(key)
+      cb(key)
+    })
+  }
   return cb
 }
 
@@ -17,7 +18,9 @@ test('basic', function (t) {
     t.notOk(calleda)
     calleda = true
     t.equal(k, 'key')
-    if (calledb) t.end()
+    if (calledb) {
+      t.end()
+    }
   })
   t.ok(a, 'first returned cb function')
 
@@ -26,7 +29,9 @@ test('basic', function (t) {
     t.notOk(calledb)
     calledb = true
     t.equal(k, 'key')
-    if (calleda) t.end()
+    if (calleda) {
+      t.end()
+    }
   })
 
   t.notOk(b, 'second should get falsey inflight response')
@@ -39,15 +44,16 @@ test('timing', function (t) {
     'end one',
     'two',
     'tick',
-    'three'
+    'three',
   ]
   var i = 0
 
   function log (m) {
     t.equal(m, expect[i], m + ' === ' + expect[i])
     ++i
-    if (i === expect.length)
+    if (i === expect.length) {
       t.end()
+    }
   }
 
   function method (name, cb) {
@@ -60,7 +66,9 @@ test('timing', function (t) {
     var three = inf('foo', function () {
       log('three')
     })
-    if (three) method('three', three)
+    if (three) {
+      method('three', three)
+    }
     log('end one')
   })
 
@@ -69,7 +77,9 @@ test('timing', function (t) {
   var two = inf('foo', function () {
     log('two')
   })
-  if (two) method('one', two)
+  if (two) {
+    method('one', two)
+  }
 
   process.nextTick(log.bind(null, 'tick'))
 })
