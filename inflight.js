@@ -4,11 +4,15 @@ var once = require('once')
 
 module.exports = wrappy(inflight)
 
-function inflight (key, cb) {
+function inflight (key, cb, max_concurrent = 1000, max_nested = 10000) {
   if (reqs[key]) {
+    if (reqs[key].length > max_nested)
+      throw new Error("Maximum nested callbacks limit reached")
     reqs[key].push(cb)
     return null
   } else {
+    if (Object.keys(reqs).length > max_concurrent)
+      throw new Error("Maximum concurrent callbacks limit reached")
     reqs[key] = [cb]
     return makeres(key)
   }
